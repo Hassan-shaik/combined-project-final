@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found Platform</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #343a40;
+            font-weight: 700;
+        }
+
+        /* Container for Lost & Found Platform */
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .form-group button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Lost Items Section */
+        .item {
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .item:hover {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .item p {
+            margin: 10px 0;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .item strong {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        /* Checkbox Styling */
+        .checkbox {
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        label {
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .password-box {
+            margin-top: 10px;
+        }
+
+        /* Admin Panel */
+        #adminPanel {
+            margin-top: 40px;
+            text-align: center;
+            display: none; /* Hide by default */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Lost & Found Platform</h1>
+        <h2>Report a Lost Item</h2>
+
+        <form id="lostItemForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="yourName">Your Name:</label>
+                <input type="text" id="yourName" placeholder="Enter your name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="itemDescription">Description:</label>
+                <textarea id="itemDescription" rows="4" placeholder="Describe the lost item" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="itemImage">Upload Image:</label>
+                <input type="file" id="itemImage" accept="image/*" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contactInfo">Your Contact Info:</label>
+                <input type="text" id="contactInfo" placeholder="Email or Phone Number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Create a Password:</label>
+                <input type="password" id="password" placeholder="Create a password for removal" required>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Submit Lost Item</button>
+            </div>
+        </form>
+
+        <h2>Lost Items</h2>
+        <div id="lostItemsContainer"></div>
+
+        <!-- Admin Button -->
+        <div class="form-group">
+            <button id="adminButton">Admin</button>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel">
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <input type="text" id="adminUser" placeholder="Enter admin username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+            </div>
+            <div class="form-group">
+                <button id="adminLoginButton">Login as Admin</button>
+            </div>
+            <div class="form-group" id="adminLogoutButton" style="display: none;">
+                <button id="adminLogout">Logout Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('lostItemForm');
+        const lostItemsContainer = document.getElementById('lostItemsContainer');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminLoginButton = document.getElementById('adminLoginButton');
+        const adminLogoutButton = document.getElementById('adminLogoutButton');
+        const adminButton = document.getElementById('adminButton');
+
+        // Admin credentials
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASSWORD = 'admin#$701913';
+
+        // Load lost items from local storage on page load
+        window.onload = function () {
+            const lostItems = JSON.parse(localStorage.getItem('lostItems')) || [];
+            lostItems.forEach(item => displayItem(item));
+
+            // Check if admin is logged in
+            if (localStorage.getItem('isAdminLoggedIn')) {
+                toggleAdminUI(true);
+            }
+        };
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const yourName = document.getElementById('yourName').value;
+            const description = document.getElementById('itemDescription').value;
+            const imageFile = document.getElementById('itemImage').files[0];
+            const contactInfo = document.getElementById('contactInfo').value;
+            const password = document.getElementById('password').value;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const newItem = {
+                    name: yourName,
+                    description,
+                    image: e.target.result,
+                    contact: contactInfo,
+                    password: password
+                };
+                const lostItems = JSON.parse(localStorage.getItem('lostItems')) || [];
+                lostItems.push(newItem);
+                localStorage.setItem('lostItems', JSON.stringify(lostItems));
+                displayItem(newItem);
+            };
+            reader.readAsDataURL(imageFile);
+
+            // Clear the form
+            form.reset();
+        });
+
+        function displayItem(item) {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('item');
+
+            const itemImage = document.createElement('img');
+            itemImage.src = item.image;
+
+            const itemDescription = document.createElement('p');
+            itemDescription.textContent = item.description;
+
+            const itemContact = document.createElement('p');
+            itemContact.innerHTML = `<strong>Contact:</strong> ${item.contact}`;
+
+            const itemName = document.createElement('p');
+            itemName.innerHTML = `<strong>Reported By:</strong> ${item.name}`;
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.classList.add('checkbox');
+            checkbox.id = item.description;
+
+            const label = document.createElement('label');
+            label.htmlFor = item.description;
+            label.textContent = " Found this item";
+
+            const passwordBox = document.createElement('input');
+            passwordBox.type = 'password';
+            passwordBox.classList.add('password-box');
+            passwordBox.placeholder = 'Enter password to remove';
+
+            checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                    const enteredPassword = passwordBox.value;
+                    const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn');
+
+                    if (isAdminLoggedIn) {
+                        removeItem(item);
+                    } else if (enteredPassword === item.password) {
+                        removeItem(item);
+                    } else {
+                        alert('Incorrect password!');
+                        this.checked = false; // Uncheck the checkbox if password is incorrect
+                    }
+                }
+            });
+
+            itemDiv.appendChild(itemImage);
+            itemDiv.appendChild(itemName);
+            itemDiv.appendChild(itemDescription);
+            itemDiv.appendChild(itemContact);
+            itemDiv.appendChild(checkbox);
+            itemDiv.appendChild(label);
+            itemDiv.appendChild(passwordBox);
+            lostItemsContainer.appendChild(itemDiv);
+        }
+
+        function removeItem(itemToRemove) {
+            const lostItems = JSON.parse(localStorage.getItem('lostItems')) || [];
+            const updatedItems = lostItems.filter(item => item.description !== itemToRemove.description);
+            localStorage.setItem('lostItems', JSON.stringify(updatedItems));
+            lostItemsContainer.innerHTML = ''; // Clear the container
+            updatedItems.forEach(item => displayItem(item)); // Re-display updated items
+        }
+
+        adminButton.addEventListener('click', function () {
+            adminPanel.style.display = adminPanel.style.display === 'none' || adminPanel.style.display === '' ? 'block' : 'none';
+        });
+
+        adminLoginButton.addEventListener('click', function () {
+            const username = document.getElementById('adminUser').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
+                localStorage.setItem('isAdminLoggedIn', 'true');
+                toggleAdminUI(true);
+                alert('Admin logged in successfully!');
+                adminPanel.style.display = 'none'; // Hide admin panel after login
+            } else {
+                alert('Invalid admin credentials!');
+            }
+        });
+
+        adminLogoutButton.addEventListener('click', function () {
+            localStorage.removeItem('isAdminLoggedIn');
+            toggleAdminUI(false);
+        });
+
+        function toggleAdminUI(isLoggedIn) {
+            if (isLoggedIn) {
+                adminLogoutButton.style.display = 'block';
+            } else {
+                adminLogoutButton.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

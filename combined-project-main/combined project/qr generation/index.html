@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Service Registration</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="index.html">Register</a></li>
+                <li><a href="home.html">Home</a></li>
+            </ul>
+        </nav>
+        <h1>Laundry Service Registration</h1>
+        <form id="registration-form">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="text" id="phone" placeholder="Phone Number" required>
+            <input type="text" id="room" placeholder="Room Number" required>
+            <select id="tower" required>
+                <option value="" disabled selected>Tower Number</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button type="submit">Register and Generate QR</button>
+        </form>
+
+        <div id="qr-code" class="hidden">
+            <h2>Your QR Code for <span id="selected-bag">Bag 1</span></h2>
+            <div id="qr"></div>
+            <select id="bag-selector">
+                <option value="Bag 1">Bag 1</option>
+                <option value="Bag 2">Bag 2</option>
+            </select>
+            <button id="go-home">Go To Home</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
